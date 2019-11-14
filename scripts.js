@@ -42,18 +42,10 @@ const program = (() => {
     return element;
   }
 
-  function empty(el) {
-    while (el.firstChild) {
-      el.removeChild(el.firstChild);
-    }
-  }
-
   function displayCompanies(companiesList) {
     if (companiesList.length === 0) {
       const emptyString = document.createElement('span');
       emptyString.setAttribute('text', 'Lén verður að vera strengur');
-      const button = document.getElementsByTagName('button');
-      button.appendChild(emptyString);
       console.log(emptyString);
     }
     for (const item of companiesList) {
@@ -98,9 +90,9 @@ const program = (() => {
         displayCompanies(data.results);
       })
       .catch((error) => {
-        empty('Ekkert fyrirtæki fannst fyrir leitarstreng');
         console.error(error);
       });
+    img.removeEventListener('load', loadingGif());
   }
 
   return {
