@@ -1,5 +1,4 @@
 const API_URL = 'https://apis.is/company?name=';
-const loadingImg = '.loading.gif';
 
 /**
  * Leit að fyrirtækjum á Íslandi gegnum apis.is
@@ -19,7 +18,6 @@ const program = (() => {
     companiesSection = _companies;
     container = companiesSection.querySelector('.results');
 
-    // eslint-disable-next-line no-undef
     const form = companiesSection.querySelector('form');
     form.addEventListener('submit', onSubmit);
   }
@@ -30,6 +28,20 @@ const program = (() => {
     getData(input.value);
   }
 
+  /*hjálparfall til að búa til element*/
+  function el(name, ...children) {
+    const element = document.createElement(name);
+    for (const child of children) {
+      if (typeof child === 'string') {
+        element.appendChild(document.createTextNode(child));
+      } else {
+        element.appendChild(child);
+      };
+    }
+
+    return element;
+  }
+
   function empty(el) {
     while (el.firstChild) {
       el.removeChild(el.firstChild);
@@ -38,12 +50,43 @@ const program = (() => {
 
   function displayCompanies(companiesList) {
     if (companiesList.length === 0) {
-      empty('Ekkert fyrirtæki fannst fyrir leitarstreng');
-      return;
+      const emptyString = document.createElement('span');
+      emptyString.setAttribute('text', 'Lén verður að vera strengur');
+      const button = document.getElementsByTagName('button');
+      button.appendChild(emptyString);
+      console.log(emptyString);
     }
+    for (const item of companiesList) {
+      const div = el('div',
+        el('dl',
+          el('dt', 'name'),
+          el('dd', item.name),
+          el('dt', 'sn'),
+          el('dd', '' + item.sn),
+          el('dt', 'active'),
+          el('dd', '' + item.active),
+          el('dt', 'address'),
+          el('dd', item.address),
+        ));
+      if (active = true) {
+        div.classList.add('company--active');
+      } else if (active = false) {
+        div.classList.add('company--inactive');
+      }
+      container.appendChild(div);
+      console.log(div);
+    }
+
   }
 
   function getData(number) {
+    const img = document.createElement('img');
+    img.setAttribute('src', 'loading.gif');
+
+    function loadingGif() {
+      document.getElementsByTagName('img').innerHTML = 'Leita að fyrirtækjum...';
+    }
+    img.addEventListener('load', loadingGif());
     fetch(`${API_URL}${number}`)
       .then((response) => {
         if (!response.ok) {
@@ -58,50 +101,6 @@ const program = (() => {
         empty('Ekkert fyrirtæki fannst fyrir leitarstreng');
         console.error(error);
       });
-  }
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const item of companiesList.results) {
-    // eslint-disable-next-line no-use-before-define
-    const div = el('div',
-      el('dl',
-        el('dt', 'name'),
-        el('dd', item.name),
-        el('dt', 'sn'),
-        el('dd', '' + item.sn),
-        el('dt', 'active'),
-        el('dd', '' + item.active),
-        el('dt', 'address'),
-        el('dd', item.address),
-      ));
-
-    div.classlist.add('company--inactive');
-    div.classlist.add('company--active');
-    container.appendChild(div);
-  }
-
-
-  /*hjálparfall til að búa til element*/
-  function el(name, ...children) {
-    const element = document.createElement(name);
-
-    for (const child of children) {
-      if (typeof child === 'string') {
-        element.appendChild(document.createTextNode(child));
-      } else {
-        element.appendChild(child);
-      };
-    }
-
-    return element;
-  }
-  //* loading gif 
-  function loadingGif() {
-    div.classlist.add('loading');
-    var docs = document.getElementById("img");
-    docs.setAttribute("src", "gif_path");
-
-    ... // other code
   }
 
   return {
