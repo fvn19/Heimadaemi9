@@ -22,32 +22,7 @@ const program = (() => {
     form.addEventListener('submit', onSubmit);
   }
 
-  function onSubmit(e) {
-    e.preventDefault();
-    const input = e.target.querySelector('input');
-    getData(input.value);
-  }
-
-  /*hjálparfall til að búa til element*/
-  function el(name, ...children) {
-    const element = document.createElement(name);
-    for (const child of children) {
-      if (typeof child === 'string') {
-        element.appendChild(document.createTextNode(child));
-      } else {
-        element.appendChild(child);
-      };
-    }
-
-    return element;
-  }
-
   function displayCompanies(companiesList) {
-    if (companiesList.length === 0) {
-      const emptyString = document.createElement('span');
-      emptyString.setAttribute('text', 'Lén verður að vera strengur');
-      console.log(emptyString);
-    }
     for (const item of companiesList) {
       const div = el('div',
         el('dl',
@@ -60,40 +35,85 @@ const program = (() => {
           el('dt', 'address'),
           el('dd', item.address),
         ));
-      if (active = true) {
+      if (item.active === 1) {
+        div.classList.add('company');
         div.classList.add('company--active');
-      } else if (active = false) {
+
+      } else if (item.active === 0) {
+        div.classList.add('company');
         div.classList.add('company--inactive');
       }
       container.appendChild(div);
       console.log(div);
     }
-
   }
 
   function getData(number) {
     const img = document.createElement('img');
     img.setAttribute('src', 'loading.gif');
 
-    function loadingGif() {
-      document.getElementsByTagName('img').innerHTML = 'Leita að fyrirtækjum...';
-    }
-    img.addEventListener('load', loadingGif());
+    const text = document.createElement('span');
+    text.innerHTML = 'Leita að fyrirtækjum...';
+
+    const villa = document.createElement('span');
+    villa.innerHTML = 'Villa við að sækja gögn';
+
+    const nonExist = document.createElement('span');
+    nonExist.innerHTML = 'Ekkert fyrirtæki fannst fyrir leitarstreng';
+
+    container.appendChild(img);
+    container.appendChild(text);
+
+
     fetch(`${API_URL}${number}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Villa við að sækja gögn');
+          container.appendChild(villa);
         }
         return response.json();
       })
       .then((data) => {
+        if (data.results.length === 0) {
+          container.appendChild(nonExist);
+        }
         displayCompanies(data.results);
       })
       .catch((error) => {
-        console.error(error);
+        container.appendChild(villa);
+      })
+      .finally(() => {
+        img.remove();
+        text.remove();
       });
-    img.removeEventListener('load', loadingGif());
   }
+
+  function onSubmit(e) {
+    container.innerHTML = '';
+    e.preventDefault();
+    const input = e.target.querySelector('input');
+    if (input.value === '') {
+      const emptyString = document.createElement('span');
+      emptyString.innerHTML = 'Lén verður að vera strengur';
+      container.appendChild(emptyString);
+      return;
+    }
+    getData(input.value);
+  }
+
+  //*  hjálparfall til að búa til element
+  function el(name, ...children) {
+    const element = document.createElement(name);
+    for (const child of children) {
+      if (typeof child === 'string') {
+        element.appendChild(document.createTextNode(child));
+      } else {
+        element.appendChild(child);
+      };
+    }
+    return element;
+  }
+
+
 
   return {
     init,
